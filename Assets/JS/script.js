@@ -1,18 +1,18 @@
-
-
+var cityList;
+var activeCity;
 
 var renderPage = function() {
     //get city list
     if (localStorage.getItem("cityList")) {
-        var cityList = JSON.parse(localStorage.getItem("cityList"));
+        cityList = JSON.parse(localStorage.getItem("cityList"));
     } else {
-        var cityList = [];
+        cityList = [];
     }
     //get active city
     if (localStorage.getItem("activeCity")) {
-        var activeCity = JSON.parse(localStorage.getItem("activeCity"));
+        activeCity = JSON.parse(localStorage.getItem("activeCity"));
     } else {
-        var activeCity = "";
+        activeCity = "Laredo";
     }
     //build search history buttons
     $('#buttonList').empty();
@@ -134,9 +134,21 @@ var apiKey = "f5f233cfe3163b61d82d69907e8f50ea"
 
 //api call
 
-renderPage();
 
 
+$(document).ready(function() {
+    renderPage();
+
+    $("#searchForm").submit(function( event ) {
+        event.preventDefault();
+        console.log($('#cityInput').val().trim());
+        var searchTerm = $('#cityInput').val().trim();
+        cityList.push(searchTerm);
+        console.log(cityList);
+       
+      });
+
+})
 
 
 
