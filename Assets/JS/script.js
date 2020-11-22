@@ -1,30 +1,39 @@
 var cityList;
 var activeCity;
 
-var renderPage = function() {
-    //get city list
+//get city list
+var getCityList = function() {
     if (localStorage.getItem("cityList")) {
         cityList = JSON.parse(localStorage.getItem("cityList"));
     } else {
         cityList = [];
     }
-    //get active city
+}
+
+//get active city
+var getActiveCity = function () {
     if (localStorage.getItem("activeCity")) {
         activeCity = JSON.parse(localStorage.getItem("activeCity"));
     } else {
         activeCity = "";
     }
-    //build search history buttons
+}
+
+//build search history buttons
+var buildSearchHistoryButtons = function() {
     $('#buttonList').empty();
-    for (i = 0; i < cityList.length; i++) {
-        var pastSearchButton = $('<div>')
-        if (cityList[i] === activeCity) {
-            pastSearchButton.html(`<button type="button" class="list-group-item list-group-item-action active">${cityList[i]}</button>`)
-        } else {
-            pastSearchButton.html(`<button type="button" class="list-group-item list-group-item-action">${cityList[i]}</button>`)
+        for (i = 0; i < cityList.length; i++) {
+            var pastSearchButton = $('<div>')
+            if (cityList[i] === activeCity) {
+                pastSearchButton.html(`<button type="button" class="list-group-item list-group-item-action active">${cityList[i]}</button>`)
+            } else {
+                pastSearchButton.html(`<button type="button" class="list-group-item list-group-item-action">${cityList[i]}</button>`)
         }
         $('#buttonList').append(pastSearchButton);
     }
+}
+
+var searchActiveCity = function() {
     //ajax call for active city
     var asideGuts = $('<div>');
     asideGuts.empty();
@@ -110,6 +119,12 @@ var renderPage = function() {
     
 }
 
+var init = function() {
+    getCityList();
+    getActiveCity();
+    buildSearchHistoryButtons();
+    searchActiveCity();
+}
 // jQuery.fn.capitalize = function() {
 //     $(this[0]).keyup(function(event) {
 //         var box = event.target;
@@ -127,7 +142,7 @@ var renderPage = function() {
 
 
 $(document).ready(function() {
-    renderPage();
+    init();
 
     $("#searchForm").submit(function( event ) {
         event.preventDefault();
