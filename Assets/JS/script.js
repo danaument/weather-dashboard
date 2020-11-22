@@ -8,7 +8,6 @@ var getCityList = function() {
     } else {
         cityList = [];
     }
-    console.log(cityList);
 }
 
 //get active city
@@ -18,7 +17,6 @@ var getActiveCity = function () {
     } else {
         activeCity = "";
     }
-    console.log(activeCity);
 }
 
 //build search history buttons
@@ -67,9 +65,18 @@ var searchActiveCity = function(city) {
         $.ajax({
             url: `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=hourly,current,minutely,alerts&appid=${apiKey}&units=imperial`
         }).then(function(response){
-            console.log(response);
-            console.log(response.daily[0].uvi);
             uvIndex = response.daily[0].uvi;
+            if (parseInt(uvIndex) < 3) {
+                var uvClass = "greenUV"
+            } else if (parseInt(uvIndex) >= 3 && parseInt(uvIndex) < 6) {
+                var uvClass = "yellowUV"
+            } else if (parseInt(uvIndex) >= 6 && parseInt(uvIndex) < 8) {
+                var uvClass = "orangeUV"
+            } else if (parseInt(uvIndex) >= 8 && parseInt(uvIndex) < 11) {
+                var uvClass = "redUV"
+            } else if (parseInt(uvIndex) >= 11) {
+                var uvClass = "purpleUV"
+            }
             asideGuts.empty();
             asideGuts.html(`
                 <div id="todayWeather" class="border rounded p-4">
@@ -80,7 +87,7 @@ var searchActiveCity = function(city) {
                     <p>Temperature: ${todayTemp} °F</p>
                     <p>Humidity: ${todayHum}%</p>
                     <p>Wind Speed: ${todayWind} MPH</p>
-                    <p>UV Index: <span id="uvSpan" class="uvClass">${uvIndex}</span></p>
+                    <p>UV Index: <span id="uvSpan" class="p-2 rounded ${uvClass}">${uvIndex}</span></p>
                 </div>
                 <div id="fiveDay" class="mt-4">
                     <h3>5-Day Forecast:</h3>
@@ -97,7 +104,6 @@ var searchActiveCity = function(city) {
                 var forecastTemp = response.daily[i].temp.max;
                 var forecastHum = response.daily[i].humidity;
                 var forecastIcon = response.daily[i].weather[0].icon;
-                console.log(forecastDate, forecastTemp, forecastHum, forecastIcon);
                 forecastCard.html(`
                 <div class="card-body">
                             <h5 class="card-title" id="dateDay1">${forecastDate}</h5>
@@ -112,10 +118,8 @@ var searchActiveCity = function(city) {
             localStorage.setItem("activeCity", JSON.stringify(city));
             if (!cityList.includes(city)) {
                 cityList.push(city);
-                console.log(JSON.stringify(cityList));
             }
             localStorage.setItem("cityList", JSON.stringify(cityList))
-            console.log(cityList);
             getCityList();
             getActiveCity();
             buildSearchHistoryButtons();
@@ -125,7 +129,6 @@ var searchActiveCity = function(city) {
     .catch(function() {
         if (activeCity.length === 0) {
             //render waiting stuff
-            console.log('activeCity.length === 0')
             asideGuts.html(`<h6>Search for a city to check out the weather</h6>`);
             $('#asideEl').append(asideGuts);
         } else {
@@ -154,15 +157,12 @@ $(document).ready(function() {
         event.preventDefault();
         var searchTerm = $('#cityInput').val().trim();
         if (searchTerm) {
-            console.log(searchTerm);
             searchActiveCity(searchTerm);
             $('#cityInput').val('');
         }
     });
 
     $("#buttonList").click(function(event) {
-        // alert(event.target.innerText);
-        
         searchActiveCity(event.target.innerText)
     });
 })

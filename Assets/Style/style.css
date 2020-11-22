@@ -5,3 +5,23 @@ img {
 .card-body {
     background-color:#007bff;
 }
+
+.greenUV {
+    background-color: limegreen;
+}
+
+.yellowUV {
+    background-color: yellow;
+}
+
+.orangeUV {
+    background-color: orange;
+}
+
+.redUV {
+    background-color: red;
+}
+
+.purpleUV {
+    background-color: violet;
+}
