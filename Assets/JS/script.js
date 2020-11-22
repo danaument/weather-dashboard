@@ -49,7 +49,7 @@ var searchActiveCity = function(city) {
     var uvIndex;
 
     $.ajax({
-        url: `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`,
+        url: `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`,
         method: "GET"
     }).then(function(response) {
         $('#asideEl').empty();
@@ -82,7 +82,7 @@ var searchActiveCity = function(city) {
                 <div id="todayWeather" class="border rounded p-4">
                     <div class="row">
                         <h2>${city} (${todayDate})</h2>
-                        <img src="http://openweathermap.org/img/wn/${todayIcon}@2x.png" alt="weather icon">
+                        <img src="https://openweathermap.org/img/wn/${todayIcon}@2x.png" alt="weather icon">
                     </div>
                     <p>Temperature: ${todayTemp} °F</p>
                     <p>Humidity: ${todayHum}%</p>
@@ -107,7 +107,7 @@ var searchActiveCity = function(city) {
                 forecastCard.html(`
                 <div class="card-body">
                             <h5 class="card-title" id="dateDay1">${forecastDate}</h5>
-                            <img src="http://openweathermap.org/img/wn/${forecastIcon}@2x.png" alt="weather icon" id="iconDay1">
+                            <img src="https://openweathermap.org/img/wn/${forecastIcon}@2x.png" alt="weather icon" id="iconDay1">
                             <p id="tempDay1">Temp: ${forecastTemp} °F</p>
                             <p id="humDay1">Humidty: ${forecastHum}%</p>
                         </div>
