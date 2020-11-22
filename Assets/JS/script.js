@@ -153,7 +153,7 @@ $(document).ready(function() {
         console.log(JSON.stringify(cityList));
         localStorage.setItem("cityList", JSON.stringify(cityList))
         console.log(cityList);
-        renderPage();
+        searchActiveCity();
     });
 
     $("#buttonList").click(function(event) {
