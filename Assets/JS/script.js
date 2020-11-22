@@ -1,6 +1,13 @@
 var cityList;
 var activeCity;
 
+
+// if ($('#cityInput').val().trim()) {
+//     console.log("test is true")
+// } else {
+//     console.log("test is false")
+// }
+
 //get city list
 var getCityList = function() {
     if (localStorage.getItem("cityList")) {
@@ -8,6 +15,7 @@ var getCityList = function() {
     } else {
         cityList = [];
     }
+    console.log(cityList);
 }
 
 //get active city
@@ -17,6 +25,7 @@ var getActiveCity = function () {
     } else {
         activeCity = "";
     }
+    console.log(activeCity);
 }
 
 //build search history buttons
@@ -33,132 +42,131 @@ var buildSearchHistoryButtons = function() {
     }
 }
 
-var searchActiveCity = function() {
+var searchActiveCity = function(city) {
     //ajax call for active city
     var asideGuts = $('<div>');
-    asideGuts.empty();
-    if (activeCity.length === 0) {
-        //render waiting stuff
-        console.log('activeCity.length === 0')
-        asideGuts.html(`<h6>Search for a city to check out the weather</h6>`);
-        $('#asideEl').append(asideGuts);
-    } else {
-        //call
-        var apiKey = "f5f233cfe3163b61d82d69907e8f50ea"
-        var todayDate = moment().format("MM/DD/YYYY");
-        var todayIcon;
-        var todayTemp;
-        var todayHum;
-        var todayWind;
-        var lon;
-        var lat;
-        var uvIndex;
+       
+    //call
+    var apiKey = "f5f233cfe3163b61d82d69907e8f50ea"
+    var todayDate = moment().format("MM/DD/YYYY");
+    var todayIcon;
+    var todayTemp;
+    var todayHum;
+    var todayWind;
+    var lon;
+    var lat;
+    var uvIndex;
 
+    $.ajax({
+        url: `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`,
+        method: "GET"
+    }).then(function(response) {
+        todayIcon = response.weather[0].icon;
+        todayTemp = response.main.temp;
+        todayHum = response.main.humidity;
+        todayWind = response.wind.speed;
+        lon = response.coord.lon;
+        lat = response.coord.lat;
+
+        // 5 day forcast and uvi
         $.ajax({
-                url: `http://api.openweathermap.org/data/2.5/weather?q=${activeCity}&appid=${apiKey}&units=imperial`,
-                method: "GET"
-        }).then(function(response) {
-            todayIcon = response.weather[0].icon;
-            todayTemp = response.main.temp;
-            todayHum = response.main.humidity;
-            todayWind = response.wind.speed;
-            lon = response.coord.lon;
-            lat = response.coord.lat;
-
-            // 5 day forcast and uvi
-            $.ajax({
-                url: `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=hourly,current,minutely,alerts&appid=${apiKey}&units=imperial`
-            }).then(function(response){
-                console.log(response);
-                console.log(response.daily[0].uvi);
-                uvIndex = response.daily[0].uvi;
-                asideGuts.html(`
-                    <div id="todayWeather" class="border rounded p-4">
-                        <div class="row">
-                            <h2>${activeCity} (${todayDate})</h2>
-                            <img src="http://openweathermap.org/img/wn/${todayIcon}@2x.png" alt="weather icon">
+            url: `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=hourly,current,minutely,alerts&appid=${apiKey}&units=imperial`
+        }).then(function(response){
+            console.log(response);
+            console.log(response.daily[0].uvi);
+            uvIndex = response.daily[0].uvi;
+            asideGuts.empty();
+            asideGuts.html(`
+                <div id="todayWeather" class="border rounded p-4">
+                    <div class="row">
+                        <h2>${city} (${todayDate})</h2>
+                        <img src="http://openweathermap.org/img/wn/${todayIcon}@2x.png" alt="weather icon">
+                    </div>
+                    <p>Temperature: ${todayTemp} °F</p>
+                    <p>Humidity: ${todayHum}%</p>
+                    <p>Wind Speed: ${todayWind} MPH</p>
+                    <p>UV Index: <span id="uvSpan" class="uvClass">${uvIndex}</span></p>
+                </div>
+                <div id="fiveDay" class="mt-4">
+                    <h3>5-Day Forecast:</h3>
+                    <div class="d-flex justify-content-between" id="cardHolder">
+                    </div>
+                </div>
+            `);
+            $('#asideEl').append(asideGuts);
+                
+            for (i = 1; i < 6; i++) {
+                var forecastCard = $('<div>');
+                var forecastDate = response.daily[i].dt;
+                forecastDate = moment(forecastDate, "X").format("MM/DD/YYYY");
+                var forecastTemp = response.daily[i].temp.max;
+                var forecastHum = response.daily[i].humidity;
+                var forecastIcon = response.daily[i].weather[0].icon;
+                console.log(forecastDate, forecastTemp, forecastHum, forecastIcon);
+                forecastCard.html(`
+                <div class="card-body">
+                            <h5 class="card-title" id="dateDay1">${forecastDate}</h5>
+                            <img src="http://openweathermap.org/img/wn/${forecastIcon}@2x.png" alt="weather icon" id="iconDay1">
+                            <p id="tempDay1">Temp: ${forecastTemp} °F</p>
+                            <p id="humDay1">Humidty: ${forecastHum}%</p>
                         </div>
-                        <p>Temperature: ${todayTemp} °F</p>
-                        <p>Humidity: ${todayHum}%</p>
-                        <p>Wind Speed: ${todayWind} MPH</p>
-                        <p>UV Index: <span id="uvSpan" class="uvClass">9.49</span></p>
-                    </div>
-                    <div id="fiveDay" class="mt-4">
-                        <h3>5-Day Forecast:</h3>
-                        <div class="d-flex justify-content-between" id="cardHolder">
-                        </div>
-                    </div>
-                `);
-                $('#asideEl').append(asideGuts);
-                for (i = 1; i < 6; i++) {
-                    var forecastCard = $('<div>');
-                    var forecastDate = response.daily[i].dt;
-                    forecastDate = moment(forecastDate, "X").format("MM/DD/YYYY");
-                    var forecastTemp = response.daily[i].temp.max;
-                    var forecastHum = response.daily[i].humidity;
-                    var forecastIcon = response.daily[i].weather[0].icon;
-                    console.log(forecastDate, forecastTemp, forecastHum, forecastIcon);
-                    forecastCard.html(`
-                    <div class="card-body">
-                                <h5 class="card-title" id="dateDay1">${forecastDate}</h5>
-                                <img src="http://openweathermap.org/img/wn/${forecastIcon}@2x.png" alt="weather icon" id="iconDay1">
-                                <p id="tempDay1">Temp: ${forecastTemp} °F</p>
-                                <p id="humDay1">Humidty: ${forecastHum}%</p>
-                            </div>
-                    </div>
-                    `)
-                    $('#cardHolder').append(forecastCard);
-                }
-            });
-        })
-        .catch(function() {
-            alert("Your search could not be completed.  Please check your spelling and try again.  Sorry for the inconvenience!")
+                </div>
+                `)
+                $('#cardHolder').append(forecastCard);
+            }
+            localStorage.setItem("activeCity", JSON.stringify(city));
+            if (!cityList.indexOf(city)) {
+                cityList.push(city);
+                console.log(JSON.stringify(cityList));
+            }
+            localStorage.setItem("cityList", JSON.stringify(cityList))
+            console.log(cityList);
+            buildSearchHistoryButtons();
         });
-    }
-    
-    
+    })
+    .catch(function() {
+        if (activeCity.length === 0) {
+            //render waiting stuff
+            console.log('activeCity.length === 0')
+            asideGuts.html(`<h6>Search for a city to check out the weather</h6>`);
+            $('#asideEl').append(asideGuts);
+        } else {
+            if ($('#cityInput').val().trim()) {
+                alert("Your search could not be completed.  Please check your spelling and try again.  Sorry for the inconvenience!")
+            }
+        }
+    });
 }
+    
+    
+
 
 var init = function() {
     getCityList();
     getActiveCity();
     buildSearchHistoryButtons();
-    searchActiveCity();
+    if (activeCity) {
+        searchActiveCity(activeCity);
+    }
 }
-// jQuery.fn.capitalize = function() {
-//     $(this[0]).keyup(function(event) {
-//         var box = event.target;
-//         var txt = $(this).val();
-//         var stringStart = box.selectionStart;
-//         var stringEnd = box.selectionEnd;
-//         $(this).val(txt.replace(/^(.)|(\s|\-)(.)/g, function($word) {
-//             return $word.toUpperCase();
-//         }));
-//         box.setSelectionRange(stringStart , stringEnd);
-//     });
 
-//    return this;
-// }
-
+init();
 
 $(document).ready(function() {
-    init();
+    
 
     $("#searchForm").submit(function( event ) {
         event.preventDefault();
         var searchTerm = $('#cityInput').val().trim();
-        console.log(searchTerm);
-        localStorage.setItem("activeCity", searchTerm);
-        cityList.push(searchTerm);
-        console.log(JSON.stringify(cityList));
-        localStorage.setItem("cityList", JSON.stringify(cityList))
-        console.log(cityList);
-        searchActiveCity();
+        if (searchTerm) {
+            console.log(searchTerm);
+        searchActiveCity(searchTerm);
+        }
     });
 
     $("#buttonList").click(function(event) {
-        alert(event.target.innerText);
-        localStorage.setItem("activeCity", event.target.innerText);
+        // alert(event.target.innerText);
+        searchActiveCity(event.target.innerText)
       });
     
 
