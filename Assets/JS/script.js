@@ -1,13 +1,6 @@
 var cityList;
 var activeCity;
 
-
-// if ($('#cityInput').val().trim()) {
-//     console.log("test is true")
-// } else {
-//     console.log("test is false")
-// }
-
 //get city list
 var getCityList = function() {
     if (localStorage.getItem("cityList")) {
@@ -61,6 +54,8 @@ var searchActiveCity = function(city) {
         url: `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`,
         method: "GET"
     }).then(function(response) {
+        $('#asideEl').empty();
+        city = city.charAt(0).toUpperCase() + city.toLowerCase().slice(1)
         todayIcon = response.weather[0].icon;
         todayTemp = response.main.temp;
         todayHum = response.main.humidity;
@@ -115,13 +110,16 @@ var searchActiveCity = function(city) {
                 $('#cardHolder').append(forecastCard);
             }
             localStorage.setItem("activeCity", JSON.stringify(city));
-            if (!cityList.indexOf(city)) {
+            if (!cityList.includes(city)) {
                 cityList.push(city);
                 console.log(JSON.stringify(cityList));
             }
             localStorage.setItem("cityList", JSON.stringify(cityList))
             console.log(cityList);
+            getCityList();
+            getActiveCity();
             buildSearchHistoryButtons();
+
         });
     })
     .catch(function() {
@@ -137,9 +135,6 @@ var searchActiveCity = function(city) {
         }
     });
 }
-    
-    
-
 
 var init = function() {
     getCityList();
@@ -147,87 +142,27 @@ var init = function() {
     buildSearchHistoryButtons();
     if (activeCity) {
         searchActiveCity(activeCity);
+    } else {
+        $('#asideEl').html(`<h6>Search for a city to check out the weather</h6>`);
     }
 }
 
 init();
 
 $(document).ready(function() {
-    
-
     $("#searchForm").submit(function( event ) {
         event.preventDefault();
         var searchTerm = $('#cityInput').val().trim();
         if (searchTerm) {
             console.log(searchTerm);
-        searchActiveCity(searchTerm);
+            searchActiveCity(searchTerm);
+            $('#cityInput').val('');
         }
     });
 
     $("#buttonList").click(function(event) {
         // alert(event.target.innerText);
+        
         searchActiveCity(event.target.innerText)
-      });
-    
-
+    });
 })
-
-
-
-
-
-// function for removing old active and applying new one
-// $(document).ready(function() {
-//     $('selector').click(function() {
-//         $('selector.active').removeClass("active");
-//         $(this).addClass("active");
-//     });
-// });
-
-
-
-
-// var activeCity = "austin"
-// var apiKey = "f5f233cfe3163b61d82d69907e8f50ea"
-//         $.ajax({
-//                 url: `http://api.openweathermap.org/data/2.5/weather?q=${activeCity}&appid=${apiKey}&units=imperial`,
-//                 method: "GET"
-//             }).then(function(response) {
-//                 console.log(response);
-//                 console.log(response.weather[0].icon);
-//                 console.log(response.coord.lon);
-//                 var lon = response.coord.lon;
-//                 var lat = response.coord.lat;
-//                 console.log(lon, lat);
-
-//                 // UVI API => pass coordinates from weather API to UVI API
-//                 $.ajax({
-//                     url: `http://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`,
-//                     method: "GET"
-//                 }).then(function(response){
-//                     console.log(response);
-//                     console.log(response.value);
-//                 });
-                
-//                 // 5 day forcast 
-//                 $.ajax({
-//                     url: `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=hourly,current,minutely,alerts&appid=${apiKey}&units=imperial`
-//                 }).then(function(response){
-//                     console.log(response);
-
-//                     for (i = 1; i < 6; i++) {
-//                         var forecastDate = response.daily[i].dt;
-//                         var forecastTemp = response.daily[i].temp.max;
-//                         var forecastHum = response.daily[i].humidity;
-//                         var forecastIcon = response.daily[i].weather[0].icon;
-//                         console.log(forecastDate, forecastTemp, forecastHum, forecastIcon);
-//                     }
-//                 });
-                
-
-//             });
-
-
-
-//api call
-
